@@ -1,0 +1,3 @@
+*.DAT filter=lfs diff=lfs merge=lfs -text
+C:/Users/gosai/OneDrive/Documents/Projects/Driver[[:space:]]Drowsiness[[:space:]]Detection[[:space:]]system/shape_predictor_68_face_landmarks.dat filter=lfs diff=lfs merge=lfs -text
+Driver-Drowsiness-Detection-System/C:/Users/gosai/OneDrive/Documents/Projects/Driver[[:space:]]Drowsiness[[:space:]]Detection[[:space:]]system/shape_predictor_68_face_landmarks.dat filter=lfs diff=lfs merge=lfs -text
