@@ -1,7 +1,7 @@
 # 🤝 Contributing to BhashaBridge
 
 Welcome to the **BhashaBridge** project!  
-We're excited to have you here and appreciate your interest in making AI truly inclusive for Bharat. Whether you're a developer, researcher, teacher, designer, or just someone who cares about language equality — there's a place for you here. 
+We're excited to have you here and appreciate your interest in making AI truly inclusive for Bharat. Whether you're a developer, researcher, teacher, designer, or just someone who cares about language equality there's a place for you here. 
 
 
 
@@ -9,7 +9,7 @@ We're excited to have you here and appreciate your interest in making AI truly i
 
 **BhashaBridge** is a rural-first, offline-capable web app that enables users to:
 - Speak in their native language
-- Get real-time translations (voice + text)
+- Get realntime translations (voice + text)
 - And most importantly: contribute to an **open multilingual speech corpus**
 
 By simply using the app, users help train future Indian language models. Our mission is to **amplify rural voices** and **build datasets that reflect India's linguistic diversity**.
@@ -67,4 +67,44 @@ venv\Scripts\activate       # Windows
 ```bash
 pip install -r requirements.txt
 ```
+**and you're good to go!!**
 
+
+
+## Making a Contribution
+
+1. **Fork the repository**
+
+2. **Create a new branch**  
+   ```bash
+   git checkout -b feature/your-feature-name
+
+3. **Make your changes and commit**
+```bash
+git add .
+git commit -m "feat: your message"
+```
+4. **Push to your fork**
+```bash
+git push origin feature/your-feature-name
+```
+5. **Open a Merge Request (MR) on code.swecha.org**
+
+## Opening an Issue or Suggesting Features
+- Go to the Issues tab.
+- Use clear titles and explain the bug, issue, or feature idea properly.
+- Add appropriate labels like bug, feature, question, or enhancement.
+- Include screenshots, logs, or error messages if applicable.
+
+## Community Guidelines
+- We value a kind and collaborative community. Please:
+- Be respectful and inclusive.
+- Assume good intent — we’re all learning.
+- Use inclusive and non-discriminatory language.
+- Collaborate actively — we love pair programming and mentorship.
+
+# Thank You
+Your contribution be it a line of code, a voice clip, or just a suggestion 
+helps shape an intelligent, inclusive, and accessible AI for India.
+
+Let’s build BhashaBridge — together! 
