@@ -54,15 +54,17 @@ You can contribute in many ways:
 ```bash
 git clone https://code.swecha.org/soai2025/bhashabridge.git
 cd bhashabridge
+```
 
 ### 2. Setup Virtual Environment (Optional but Recommended)
 ```bash
 python -m venv venv
 source venv/bin/activate    # Linux/Mac
 venv\Scripts\activate       # Windows
+```
 
 ### 3. Install Dependencies
 ```bash
 pip install -r requirements.txt
-
+```
 
