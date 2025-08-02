@@ -1,0 +1,242 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "BhashaBridge Corpus Schema",
+  "description": "Schema for BhashaBridge language corpus contributions",
+  "type": "object",
+  "properties": {
+    "corpus_metadata": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string",
+          "description": "Corpus schema version",
+          "example": "1.0.0"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Corpus creation timestamp"
+        },
+        "total_contributions": {
+          "type": "integer",
+          "description": "Total number of contributions in this corpus"
+        },
+        "languages": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of language codes included in corpus",
+          "example": ["hi", "te", "kn", "ta", "mr", "en"]
+        },
+        "contributors": {
+          "type": "integer",
+          "description": "Number of unique contributors"
+        },
+        "license": {
+          "type": "string",
+          "description": "License for corpus usage",
+          "example": "CC BY-SA 4.0"
+        }
+      },
+      "required": ["version", "created_at", "total_contributions", "languages"]
+    },
+    "contributions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique contribution identifier"
+          },
+          "user_id": {
+            "type": "string",
+            "description": "Anonymized contributor identifier"
+          },
+          "source_language": {
+            "type": "string",
+            "pattern": "^[a-z]{2}$",
+            "description": "Source language code (ISO 639-1)",
+            "example": "hi"
+          },
+          "target_language": {
+            "type": "string",
+            "pattern": "^[a-z]{2}$",
+            "description": "Target language code (ISO 639-1)",
+            "example": "en"
+          },
+          "source_text": {
+            "type": "string",
+            "description": "Original text in source language",
+            "minLength": 1,
+            "maxLength": 5000
+          },
+          "target_text": {
+            "type": "string",
+            "description": "Translation in target language",
+            "minLength": 1,
+            "maxLength": 5000
+          },
+          "contribution_type": {
+            "type": "string",
+            "enum": ["text", "audio", "both"],
+            "description": "Type of contribution"
+          },
+          "audio_metadata": {
+            "type": "object",
+            "properties": {
+              "duration_seconds": {
+                "type": "number",
+                "minimum": 0
+              },
+              "sample_rate": {
+                "type": "integer",
+                "minimum": 8000
+              },
+              "format": {
+                "type": "string",
+                "enum": ["wav", "mp3", "flac"]
+              },
+              "speaker_gender": {
+                "type": "string",
+                "enum": ["male", "female", "other", "unknown"]
+              },
+              "speaker_age_range": {
+                "type": "string",
+                "enum": ["child", "young_adult", "adult", "elderly", "unknown"]
+              }
+            }
+          },
+          "dialect_info": {
+            "type": "object",
+            "properties": {
+              "region": {
+                "type": "string",
+                "description": "Geographic region or state",
+                "example": "Telangana"
+              },
+              "dialect_variant": {
+                "type": "string",
+                "description": "Specific dialect variant",
+                "example": "Hyderabadi Telugu"
+              },
+              "formality_level": {
+                "type": "string",
+                "enum": ["formal", "informal", "colloquial"],
+                "description": "Level of formality in the text"
+              }
+            }
+          },
+          "quality_metrics": {
+            "type": "object",
+            "properties": {
+              "verified": {
+                "type": "boolean",
+                "description": "Whether contribution has been verified"
+              },
+              "confidence_score": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1,
+                "description": "Confidence score for translation quality"
+              },
+              "review_count": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Number of reviews received"
+              },
+              "average_rating": {
+                "type": "number",
+                "minimum": 1,
+                "maximum": 5,
+                "description": "Average rating from reviewers"
+              }
+            }
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Contribution timestamp"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Last update timestamp"
+          }
+        },
+        "required": [
+          "id",
+          "source_language",
+          "target_language", 
+          "source_text",
+          "target_text",
+          "contribution_type",
+          "created_at"
+        ]
+      }
+    }
+  },
+  "required": ["corpus_metadata", "contributions"],
+  "examples": [
+    {
+      "corpus_metadata": {
+        "version": "1.0.0",
+        "created_at": "2024-01-15T10:30:00Z",
+        "total_contributions": 2,
+        "languages": ["hi", "en", "te"],
+        "contributors": 1,
+        "license": "CC BY-SA 4.0"
+      },
+      "contributions": [
+        {
+          "id": "contrib_1705312200_abc123",
+          "user_id": "user_anonymous_001",
+          "source_language": "hi",
+          "target_language": "en",
+          "source_text": "नमस्ते, आप कैसे हैं?",
+          "target_text": "Hello, how are you?",
+          "contribution_type": "text",
+          "dialect_info": {
+            "region": "Delhi",
+            "formality_level": "formal"
+          },
+          "quality_metrics": {
+            "verified": true,
+            "confidence_score": 0.95,
+            "review_count": 2,
+            "average_rating": 4.5
+          },
+          "created_at": "2024-01-15T10:30:00Z"
+        },
+        {
+          "id": "contrib_1705312260_def456",
+          "user_id": "user_anonymous_001",
+          "source_language": "te",
+          "target_language": "en",
+          "source_text": "మీరు ఎలా ఉన్నారు?",
+          "target_text": "How are you?",
+          "contribution_type": "both",
+          "audio_metadata": {
+            "duration_seconds": 2.5,
+            "sample_rate": 16000,
+            "format": "wav",
+            "speaker_gender": "female",
+            "speaker_age_range": "adult"
+          },
+          "dialect_info": {
+            "region": "Andhra Pradesh",
+            "dialect_variant": "Coastal Andhra",
+            "formality_level": "informal"
+          },
+          "quality_metrics": {
+            "verified": false,
+            "confidence_score": 0.88,
+            "review_count": 0
+          },
+          "created_at": "2024-01-15T10:31:00Z"
+        }
+      ]
+    }
+  ]
+}

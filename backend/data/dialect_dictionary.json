@@ -1,0 +1,252 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "created_at": "2024-01-15T00:00:00Z",
+    "description": "Local dialect dictionary for BhashaBridge",
+    "total_entries": 50,
+    "supported_languages": ["hi", "te", "kn", "ta", "mr"]
+  },
+  "dialects": {
+    "hi": {
+      "language_name": "Hindi",
+      "regions": {
+        "delhi": {
+          "region_name": "Delhi Hindi",
+          "entries": [
+            {
+              "word": "पानी",
+              "pronunciation": "paani",
+              "meaning": "water",
+              "usage": "formal",
+              "example": "मुझे पानी चाहिए"
+            },
+            {
+              "word": "जल",
+              "pronunciation": "jal",
+              "meaning": "water",
+              "usage": "formal/literary",
+              "example": "जल ही जीवन है"
+            }
+          ]
+        },
+        "rajasthan": {
+          "region_name": "Rajasthani Hindi",
+          "entries": [
+            {
+              "word": "घणो",
+              "pronunciation": "ghano",
+              "meaning": "very much/a lot",
+              "usage": "colloquial",
+              "example": "घणो अच्छो लाग्यो"
+            }
+          ]
+        }
+      }
+    },
+    "te": {
+      "language_name": "Telugu",
+      "regions": {
+        "andhra": {
+          "region_name": "Coastal Andhra Telugu",
+          "entries": [
+            {
+              "word": "నీళ్లు",
+              "pronunciation": "neellu",
+              "meaning": "water",
+              "usage": "standard",
+              "example": "నాకు నీళ్లు కావాలి"
+            },
+            {
+              "word": "జలం",
+              "pronunciation": "jalam",
+              "meaning": "water",
+              "usage": "formal/literary",
+              "example": "జలమే జీవనం"
+            }
+          ]
+        },
+        "telangana": {
+          "region_name": "Telangana Telugu",
+          "entries": [
+            {
+              "word": "బాగా",
+              "pronunciation": "baaga",
+              "meaning": "very/well",
+              "usage": "standard",
+              "example": "బాగా చేశావు"
+            },
+            {
+              "word": "చాలా",
+              "pronunciation": "chaala",
+              "meaning": "very/much",
+              "usage": "standard",
+              "example": "చాలా బాగుంది"
+            }
+          ]
+        },
+        "rayalaseema": {
+          "region_name": "Rayalaseema Telugu",
+          "entries": [
+            {
+              "word": "ఎక్కడ",
+              "pronunciation": "ekkada",
+              "meaning": "where",
+              "usage": "standard",
+              "example": "మీరు ఎక్కడ వెళ్తున్నారు?"
+            }
+          ]
+        }
+      }
+    },
+    "kn": {
+      "language_name": "Kannada",
+      "regions": {
+        "bangalore": {
+          "region_name": "Bangalore Kannada",
+          "entries": [
+            {
+              "word": "ನೀರು",
+              "pronunciation": "neeru",
+              "meaning": "water",
+              "usage": "standard",
+              "example": "ನನಗೆ ನೀರು ಬೇಕು"
+            },
+            {
+              "word": "ಜಲ",
+              "pronunciation": "jala",
+              "meaning": "water",
+              "usage": "formal",
+              "example": "ಜಲವೇ ಜೀವನ"
+            }
+          ]
+        },
+        "mysore": {
+          "region_name": "Mysore Kannada",
+          "entries": [
+            {
+              "word": "ಹೇಗೆ",
+              "pronunciation": "hege",
+              "meaning": "how",
+              "usage": "standard",
+              "example": "ನೀವು ಹೇಗೆ ಇದ್ದೀರಿ?"
+            }
+          ]
+        }
+      }
+    },
+    "ta": {
+      "language_name": "Tamil",
+      "regions": {
+        "chennai": {
+          "region_name": "Chennai Tamil",
+          "entries": [
+            {
+              "word": "தண்ணீர்",
+              "pronunciation": "thanneer",
+              "meaning": "water",
+              "usage": "standard",
+              "example": "எனக்கு தண்ணீர் வேண்டும்"
+            },
+            {
+              "word": "நீர்",
+              "pronunciation": "neer",
+              "meaning": "water",
+              "usage": "formal/literary",
+              "example": "நீரே உயிர்"
+            }
+          ]
+        },
+        "madurai": {
+          "region_name": "Madurai Tamil",
+          "entries": [
+            {
+              "word": "எப்படி",
+              "pronunciation": "eppadi",
+              "meaning": "how",
+              "usage": "standard",
+              "example": "நீங்கள் எப்படி இருக்கிறீர்கள்?"
+            }
+          ]
+        }
+      }
+    },
+    "mr": {
+      "language_name": "Marathi",
+      "regions": {
+        "mumbai": {
+          "region_name": "Mumbai Marathi",
+          "entries": [
+            {
+              "word": "पाणी",
+              "pronunciation": "paani",
+              "meaning": "water",
+              "usage": "standard",
+              "example": "मला पाणी हवे"
+            },
+            {
+              "word": "जल",
+              "pronunciation": "jal",
+              "meaning": "water",
+              "usage": "formal",
+              "example": "जलच जीवन"
+            }
+          ]
+        },
+        "pune": {
+          "region_name": "Pune Marathi",
+          "entries": [
+            {
+              "word": "कसे",
+              "pronunciation": "kase",
+              "meaning": "how",
+              "usage": "standard",
+              "example": "तुम्ही कसे आहात?"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "common_phrases": {
+    "greetings": [
+      {
+        "hi": "नमस्ते",
+        "te": "నమస్కారం",
+        "kn": "ನಮಸ್ಕಾರ",
+        "ta": "வணக்கம்",
+        "mr": "नमस्कार",
+        "en": "Hello/Greetings",
+        "context": "formal greeting"
+      },
+      {
+        "hi": "आप कैसे हैं?",
+        "te": "మీరు ఎలా ఉన్నారు?",
+        "kn": "ನೀವು ಹೇಗಿದ್ದೀರಿ?",
+        "ta": "நீங்கள் எப்படி இருக்கிறீர்கள்?",
+        "mr": "तुम्ही कसे आहात?",
+        "en": "How are you?",
+        "context": "asking about wellbeing"
+      }
+    ],
+    "basic_needs": [
+      {
+        "hi": "मुझे पानी चाहिए",
+        "te": "నాకు నీళ్లు కావాలి",
+        "kn": "ನನಗೆ ನೀರು ಬೇಕು",
+        "ta": "எனக்கு தண்ணீர் வேண்டும்",
+        "mr": "मला पाणी हवे",
+        "en": "I need water",
+        "context": "requesting water"
+      },
+      {
+        "hi": "मुझे खाना चाहिए",
+        "te": "నాకు భోజనం కావాలి",
+        "kn": "ನನಗೆ ಊಟ ಬೇಕು",
+        "ta": "எனக்கு சாப்பாடு வேண்டும்",
+        "mr": "मला जेवण हवे",
+        "en": "I need food",
+        "context": "requesting food"
+      }
+    ]
+  }
+}
