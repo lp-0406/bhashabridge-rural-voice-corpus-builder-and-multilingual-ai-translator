@@ -349,24 +349,24 @@ def get_user_badges(user_id):
             'first_contribution': {
                 'name': 'First Steps',
                 'description': 'Made your first contribution',
-                'icon': '🎯'
+                'icon': '[First]'
             },
             'regular_contributor': {
                 'name': 'Regular Contributor',
                 'description': 'Made 10 contributions',
-                'icon': '🏆'
+                'icon': '[Regular]'
             },
             'language_champion': {
                 'name': 'Language Champion',
                 'description': 'Made 50 contributions',
-                'icon': '💎'
+                'icon': '[Champion]'
             }
         }
         
         badges = [badge_details.get(badge, {
             'name': badge,
             'description': 'Achievement unlocked',
-            'icon': '🏅'
+            'icon': '[Badge]'
         }) for badge in badges_data]
         
         return jsonify({
