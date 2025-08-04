@@ -55,7 +55,7 @@ BhashaBridge is an offline-first, multilingual platform that enables rural users
 ### Architecture Overview
 ```
 BhashaBridge/
-├── streamlit_app.py         # Main Streamlit application
+├── streamlit_app_enhanced.py         # Enhanced Streamlit application
 ├── backend/
 │   ├── app.py              # Flask API server
 │   ├── models/             # AI model integrations

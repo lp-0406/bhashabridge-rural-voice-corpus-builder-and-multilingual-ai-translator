@@ -13,7 +13,7 @@ echo "[2/3] Waiting for backend to initialize..."
 sleep 5
 
 echo "[3/3] Starting Streamlit Frontend..."
-streamlit run streamlit_app.py &
+streamlit run streamlit_app_enhanced.py &
 FRONTEND_PID=$!
 
 echo ""

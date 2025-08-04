@@ -70,7 +70,7 @@ def test_imports():
 def test_file_structure():
     """Test that required files and directories exist"""
     required_files = [
-        'streamlit_app.py',
+        'streamlit_app_enhanced.py',
         'requirements-minimal.txt',
         'backend/app.py',
         'backend/data/dialect_dictionary.json',
@@ -137,7 +137,7 @@ def main():
     if all_passed:
         print("🎉 All tests passed! BhashaBridge is ready to run.")
         print("\nTo start the application:")
-        print("1. Run: streamlit run streamlit_app.py")
+        print("1. Run: streamlit run streamlit_app_enhanced.py")
         print("2. Or use: start.bat (Windows)")
     else:
         print("❌ Some tests failed. Please fix the issues above.")

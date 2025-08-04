@@ -63,17 +63,24 @@ def start_backend():
     """Start the full Flask backend server"""
     print("[BACKEND] Starting Full Backend Server...")
     try:
-        # Change to backend directory
-        os.chdir("backend")
+        # Store current directory
+        original_dir = os.getcwd()
+        
+        # Change to backend directory temporarily
+        backend_dir = os.path.join(original_dir, "backend")
+        os.chdir(backend_dir)
         
         # Populate dialect database first
         print("[DB] Populating dialect database...")
         subprocess.run([sys.executable, "populate_dialects.py"], check=True)
         
+        # Change back to original directory before starting Flask
+        os.chdir(original_dir)
+        
         # Start the full backend with output capture
         print("[START] Starting backend server...")
         process = subprocess.Popen([
-            sys.executable, "full_app.py"
+            sys.executable, os.path.join("backend", "full_app.py")
         ], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         
         # Wait longer for server to start (Flask can take time to initialize)
@@ -121,19 +128,21 @@ def start_backend():
             
     except Exception as e:
         print(f"[ERROR] Error starting backend: {e}")
+        # Change back to original directory in case of error
+        try:
+            os.chdir(original_dir)
+        except:
+            pass
         return None
 
 def start_frontend():
     """Start the Streamlit frontend"""
     print("[FRONTEND] Starting Frontend Server...")
     try:
-        # Change back to main directory
-        os.chdir("..")
-        
-        # Start Streamlit
+        # Start Streamlit with enhanced frontend
         process = subprocess.Popen([
-            sys.executable, "-m", "streamlit", "run", "streamlit_app.py",
-            "--server.port", "8501",
+            sys.executable, "-m", "streamlit", "run", "streamlit_app_enhanced.py",
+            "--server.port", "8503",
             "--server.headless", "true"
         ], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         
@@ -141,12 +150,21 @@ def start_frontend():
         time.sleep(5)
         
         # Check if frontend is running
-        if check_port(8501):
+        if check_port(8503):
             print("[OK] Frontend started successfully!")
-            print("[URL] Frontend URL: http://localhost:8501")
+            print("[URL] Frontend URL: http://localhost:8503")
             return process
         else:
             print("[ERROR] Frontend failed to start")
+            # Get any output from the process to help debug
+            try:
+                stdout, stderr = process.communicate(timeout=1)
+                if stdout:
+                    print("STDOUT:", stdout.decode())
+                if stderr:
+                    print("STDERR:", stderr.decode())
+            except:
+                pass
             return None
             
     except Exception as e:
@@ -158,11 +176,11 @@ def open_browser():
     print("[BROWSER] Opening browser...")
     time.sleep(3)  # Wait for servers to be fully ready
     try:
-        webbrowser.open("http://localhost:8501")
+        webbrowser.open("http://localhost:8503")
         print("[OK] Browser opened successfully!")
     except Exception as e:
         print(f"[WARN] Could not open browser automatically: {e}")
-        print("   Please manually open: http://localhost:8501")
+        print("   Please manually open: http://localhost:8503")
 
 def test_backend_features():
     """Test backend features"""
@@ -199,7 +217,7 @@ def main():
     print_banner()
     
     # Check if we're in the right directory
-    if not os.path.exists("streamlit_app.py"):
+    if not os.path.exists("streamlit_app_enhanced.py"):
         print("[ERROR] Error: Please run this script from the BhashaBridge directory")
         print("   Current directory:", os.getcwd())
         sys.exit(1)
@@ -232,7 +250,7 @@ def main():
     print("\n" + "=" * 70)
     print("[SUCCESS] BhashaBridge Full System is now running!")
     print("=" * 70)
-    print("[URL] Frontend: http://localhost:8501")
+    print("[URL] Frontend: http://localhost:8503")
     print("[URL] Backend:  http://localhost:5000")
     print("[FEATURES]:")
     print("   [OK] Real translation using Google Translate")

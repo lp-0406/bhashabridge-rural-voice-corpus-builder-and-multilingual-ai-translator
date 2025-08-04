@@ -14,6 +14,32 @@ from pydub import AudioSegment
 import io
 import base64
 
+# Add parent directory to path for imports
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+# Import new AI modules
+try:
+    from stt_whisper import whisper_stt, transcribe_audio
+    WHISPER_AVAILABLE = True
+except ImportError as e:
+    print(f"[WARN] Whisper STT not available: {e}")
+    WHISPER_AVAILABLE = False
+
+try:
+    from translator_indic import indic_translator, translate_text as translate_indic
+    INDICTRANS_AVAILABLE = True
+except ImportError as e:
+    print(f"[WARN] IndicTrans2 not available: {e}")
+    INDICTRANS_AVAILABLE = False
+
+try:
+    from corpus_saver import corpus_saver, save_corpus_entry, save_feedback, export_corpus_zip
+    CORPUS_SAVER_AVAILABLE = True
+except ImportError as e:
+    print(f"[WARN] Corpus saver not available: {e}")
+    CORPUS_SAVER_AVAILABLE = False
+
 # Initialize Flask app
 app = Flask(__name__)
 CORS(app)
@@ -213,6 +239,8 @@ def translate_text():
         text = data.get('text', '').strip()
         source_lang = data.get('source_language', 'auto')
         target_lang = data.get('target_language', 'en')
+        user_id = data.get('user_id')
+        save_to_corpus = data.get('save_to_corpus', False)
         
         if not text:
             return jsonify({'error': 'Text is required'}), 400
@@ -220,22 +248,70 @@ def translate_text():
         if target_lang not in SUPPORTED_LANGUAGES:
             return jsonify({'error': 'Unsupported target language'}), 400
         
-        # Perform real translation
-        result = translate_text_real(text, source_lang, target_lang)
+        # Try IndicTrans2 first, fallback to Google Translate
+        result = None
+        translation_method = 'google'
+        
+        if INDICTRANS_AVAILABLE and source_lang != 'auto':
+            try:
+                translated_text = translate_indic(text, source_lang, target_lang)
+                if translated_text and not translated_text.startswith('[Translation Error'):
+                    result = {
+                        'translated_text': translated_text,
+                        'source_language': source_lang,
+                        'target_language': target_lang,
+                        'confidence': 0.85,
+                        'detected_language': source_lang
+                    }
+                    translation_method = 'indictrans2'
+            except Exception as e:
+                print(f"[WARN] IndicTrans2 failed, using fallback: {e}")
+        
+        # Fallback to Google Translate
+        if not result:
+            result = translate_text_real(text, source_lang, target_lang)
         
         if result:
             # Get dialect translations if available
             dialect_results = get_dialect_translations(text, source_lang)
             
-            return jsonify({
+            # Save to corpus if requested and corpus saver is available
+            entry_id = None
+            if save_to_corpus and CORPUS_SAVER_AVAILABLE:
+                try:
+                    # Create a dummy audio data for text-only entries
+                    dummy_audio = b''
+                    entry_id = save_corpus_entry(
+                        audio_data=dummy_audio,
+                        transcription=text,
+                        translation=result['translated_text'],
+                        src_lang=result['source_language'],
+                        tgt_lang=result['target_language'],
+                        confidence=result['confidence'],
+                        user_id=user_id,
+                        additional_metadata={
+                            'translation_method': translation_method,
+                            'entry_type': 'text_only'
+                        }
+                    )
+                except Exception as e:
+                    print(f"[WARN] Failed to save to corpus: {e}")
+            
+            response = {
                 'translated_text': result['translated_text'],
                 'source_language': result['source_language'],
                 'target_language': result['target_language'],
                 'confidence': result['confidence'],
                 'detected_language': result.get('detected_language'),
                 'dialect_translations': dialect_results,
+                'translation_method': translation_method,
                 'demo_mode': False
-            })
+            }
+            
+            if entry_id:
+                response['corpus_entry_id'] = entry_id
+            
+            return jsonify(response)
         else:
             return jsonify({'error': 'Translation failed'}), 500
         
@@ -464,13 +540,93 @@ def get_stats():
             db.func.count(Contribution.id)
         ).group_by(Contribution.source_language).all()
         
-        return jsonify({
+        # Add corpus statistics if available
+        corpus_stats = {}
+        if CORPUS_SAVER_AVAILABLE:
+            try:
+                corpus_stats = corpus_saver.get_corpus_stats()
+            except Exception as e:
+                print(f"[WARN] Failed to get corpus stats: {e}")
+        
+        response = {
             'total_users': total_users,
             'total_contributions': total_contributions,
             'total_dialects': total_dialects,
             'language_breakdown': dict(lang_stats),
             'timestamp': datetime.utcnow().isoformat()
-        })
+        }
+        
+        if corpus_stats:
+            response['corpus_stats'] = corpus_stats
+        
+        return jsonify(response)
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# New AI-powered endpoints
+
+@app.route('/api/corpus/feedback', methods=['POST'])
+def submit_feedback():
+    """Submit feedback for corpus entries"""
+    try:
+        if not CORPUS_SAVER_AVAILABLE:
+            return jsonify({'error': 'Corpus saver not available'}), 503
+        
+        data = request.get_json()
+        entry_id = data.get('entry_id')
+        is_correct = data.get('is_correct')
+        corrected_transcription = data.get('corrected_transcription')
+        corrected_translation = data.get('corrected_translation')
+        user_comments = data.get('user_comments')
+        
+        if not entry_id or is_correct is None:
+            return jsonify({'error': 'entry_id and is_correct are required'}), 400
+        
+        # Save feedback
+        success = save_feedback(
+            entry_id=entry_id,
+            is_correct=is_correct,
+            corrected_transcription=corrected_transcription,
+            corrected_translation=corrected_translation,
+            user_comments=user_comments
+        )
+        
+        if success:
+            return jsonify({
+                'message': 'Feedback saved successfully',
+                'entry_id': entry_id
+            })
+        else:
+            return jsonify({'error': 'Failed to save feedback'}), 500
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/corpus/export', methods=['GET'])
+def export_corpus():
+    """Export corpus data"""
+    try:
+        if not CORPUS_SAVER_AVAILABLE:
+            return jsonify({'error': 'Corpus saver not available'}), 503
+        
+        export_format = request.args.get('format', 'zip').lower()
+        include_audio = request.args.get('include_audio', 'true').lower() == 'true'
+        
+        if export_format == 'zip':
+            zip_path = export_corpus_zip(include_audio=include_audio)
+            return send_file(zip_path, as_attachment=True, download_name=f'bhashabridge_corpus_{datetime.now().strftime("%Y%m%d_%H%M%S")}.zip')
+        
+        elif export_format == 'csv':
+            csv_path = corpus_saver.export_to_csv()
+            return send_file(csv_path, as_attachment=True, download_name=f'bhashabridge_corpus_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv')
+        
+        elif export_format == 'jsonl':
+            jsonl_path = corpus_saver.export_to_jsonl()
+            return send_file(jsonl_path, as_attachment=True, download_name=f'bhashabridge_corpus_{datetime.now().strftime("%Y%m%d_%H%M%S")}.jsonl')
+        
+        else:
+            return jsonify({'error': 'Unsupported export format. Use: zip, csv, or jsonl'}), 400
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -495,10 +651,26 @@ if __name__ == '__main__':
         except Exception as e:
             print(f"[WARN] Translation service error: {e}")
         
+        # Test AI modules
+        if WHISPER_AVAILABLE:
+            print("[OK] Whisper STT available")
+        else:
+            print("[WARN] Whisper STT not available")
+            
+        if INDICTRANS_AVAILABLE:
+            print("[OK] IndicTrans2 available")
+        else:
+            print("[WARN] IndicTrans2 not available")
+            
+        if CORPUS_SAVER_AVAILABLE:
+            print("[OK] Corpus saver available")
+        else:
+            print("[WARN] Corpus saver not available")
+        
         print("[START] BhashaBridge Full Backend Starting...")
         print("[URL] Backend URL: http://localhost:5000")
         print("[MODE] Full Mode: Real translation and speech recognition")
-        print("[FEATURES] Google Translate, Speech Recognition, Dialect Search")
+        print("[FEATURES] Google Translate, Speech Recognition, Dialect Search, AI Models")
         print("[LANGUAGES] Supported Languages:", ', '.join(SUPPORTED_LANGUAGES.values()))
         
         app.run(debug=True, host='0.0.0.0', port=5000)
