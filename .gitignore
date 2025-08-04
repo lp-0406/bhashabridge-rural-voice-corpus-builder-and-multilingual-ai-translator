@@ -142,12 +142,6 @@ dist/
 .next/
 out/
 
-# VS Code
-.vscode/
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
 
 # OS generated files
 .DS_Store
