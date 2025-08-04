@@ -480,30 +480,30 @@ if __name__ == '__main__':
         # Initialize database with error handling
         with app.app_context():
             db.create_all()
-            print("✅ Database initialized successfully")
+            print("[OK] Database initialized successfully")
         
         # Test critical services
-        print("🔍 Testing services...")
+        print("[INFO] Testing services...")
         
         # Test translation service
         try:
             test_translation = translate_text_real("Hello", "en", "hi")
             if test_translation:
-                print("✅ Translation service working")
+                print("[OK] Translation service working")
             else:
-                print("⚠️  Translation service may have issues")
+                print("[WARN] Translation service may have issues")
         except Exception as e:
-            print(f"⚠️  Translation service error: {e}")
+            print(f"[WARN] Translation service error: {e}")
         
-        print("🚀 BhashaBridge Full Backend Starting...")
-        print("📍 Backend URL: http://localhost:5000")
-        print("🔧 Full Mode: Real translation and speech recognition")
-        print("🌐 Features: Google Translate, Speech Recognition, Dialect Search")
-        print("📚 Supported Languages:", ', '.join(SUPPORTED_LANGUAGES.values()))
+        print("[START] BhashaBridge Full Backend Starting...")
+        print("[URL] Backend URL: http://localhost:5000")
+        print("[MODE] Full Mode: Real translation and speech recognition")
+        print("[FEATURES] Google Translate, Speech Recognition, Dialect Search")
+        print("[LANGUAGES] Supported Languages:", ', '.join(SUPPORTED_LANGUAGES.values()))
         
         app.run(debug=True, host='0.0.0.0', port=5000)
         
     except Exception as e:
-        print(f"❌ Failed to start BhashaBridge backend: {e}")
+        print(f"[ERROR] Failed to start BhashaBridge backend: {e}")
         print("Please check your dependencies and configuration.")
         exit(1)

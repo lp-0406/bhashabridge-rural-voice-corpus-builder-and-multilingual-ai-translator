@@ -142,7 +142,7 @@ def populate_dialects():
             db.session.add(entry)
         
         db.session.commit()
-        print(f"✅ Added {len(sample_dialects)} dialect entries")
+        print(f"[OK] Added {len(sample_dialects)} dialect entries")
 
 if __name__ == "__main__":
     populate_dialects() 
