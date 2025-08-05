@@ -70,65 +70,47 @@ def start_backend():
         backend_dir = os.path.join(original_dir, "backend")
         os.chdir(backend_dir)
         
-        # Populate dialect database first
-        print("[DB] Populating dialect database...")
-        subprocess.run([sys.executable, "populate_dialects.py"], check=True)
+        # Start the backend with subprocess.Popen
+        process = subprocess.Popen(
+            [sys.executable, "full_app.py"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
+        )
         
-        # Change back to original directory before starting Flask
-        os.chdir(original_dir)
-        
-        # Start the full backend with output capture
-        print("[START] Starting backend server...")
-        process = subprocess.Popen([
-            sys.executable, os.path.join("backend", "full_app.py")
-        ], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-        
-        # Wait longer for server to start (Flask can take time to initialize)
+        # Wait for server to start
         print("[WAIT] Waiting for backend to start...")
-        time.sleep(5)  # Increased wait time
+        time.sleep(10)  # Increase wait time to 10 seconds
         
-        # Check if backend is running with multiple attempts
-        max_attempts = 2 # Increased attempts
-        for attempt in range(max_attempts):
+        # Check if backend is running
+        max_retries = 5  # Increase retry attempts
+        retry_delay = 3  # Seconds between retries
+        
+        for attempt in range(max_retries):
             try:
-                # Try to connect to the health endpoint
-                response = requests.get("http://localhost:5000/api/health", timeout=3)
+                response = requests.get("http://localhost:5000/api/health", timeout=5)
                 if response.status_code == 200:
-                    print("[OK] Full backend started successfully!")
-                    print("[URL] Backend URL: http://localhost:5000")
-                    print("[FEATURES] Real translation, speech recognition, dialect search")
+                    print("[OK] Backend started successfully!")
+                    os.chdir(original_dir)  # Return to original directory
                     return process
-                else:
-                    print(f"[WAIT] Backend responding but not ready (attempt {attempt + 1}/{max_attempts})...")
             except requests.exceptions.RequestException:
-                print(f"[WAIT] Backend not ready yet (attempt {attempt + 1}/{max_attempts})...")
-            
-            # Check if process is still running
-            if process.poll() is not None:
-                # Process has terminated, get the output
-                stdout, stderr = process.communicate()
-                print("[ERROR] Backend process terminated!")
-                print("STDOUT:", stdout)
-                print("STDERR:", stderr)
-                return None
-            
-            time.sleep(5)  # Wait longer between attempts
+                if process.poll() is not None:
+                    # Process has terminated
+                    stdout, stderr = process.communicate()
+                    print("[ERROR] Backend process terminated!")
+                    print("STDOUT:", stdout)
+                    print("STDERR:", stderr)
+                    break
+                print(f"[WAIT] Backend not ready yet (attempt {attempt + 1}/{max_retries})...")
+                time.sleep(retry_delay)
         
-        print("[ERROR] Backend failed to start after multiple attempts")
-        # Get any output from the process
-        try:
-            stdout, stderr = process.communicate(timeout=1)
-            if stdout:
-                print("STDOUT:", stdout)
-            if stderr:
-                print("STDERR:", stderr)
-        except:
-            pass
+        # If we get here, startup failed
+        print("[ERROR] Backend failed to start")
+        os.chdir(original_dir)  # Return to original directory
         return None
             
     except Exception as e:
         print(f"[ERROR] Error starting backend: {e}")
-        # Change back to original directory in case of error
         try:
             os.chdir(original_dir)
         except:
@@ -275,4 +257,4 @@ def main():
         print("[OK] Services stopped")
 
 if __name__ == "__main__":
-    main() 
+    main()

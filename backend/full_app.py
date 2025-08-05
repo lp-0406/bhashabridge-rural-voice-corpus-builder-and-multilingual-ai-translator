@@ -638,44 +638,12 @@ if __name__ == '__main__':
             db.create_all()
             print("[OK] Database initialized successfully")
         
-        # Test critical services
-        print("[TEST] Testing services...")
-        
-        # Test translation service
-        try:
-            test_translation = translate_text_real("Hello", "en", "hi")
-            if test_translation:
-                print("[OK] Translation service working")
-            else:
-                print("[WARN] Translation service may have issues")
-        except Exception as e:
-            print(f"[WARN] Translation service error: {e}")
-        
-        # Test AI modules
-        if WHISPER_AVAILABLE:
-            print("[OK] Whisper STT available")
-        else:
-            print("[WARN] Whisper STT not available")
-            
-        if INDICTRANS_AVAILABLE:
-            print("[OK] IndicTrans2 available")
-        else:
-            print("[WARN] IndicTrans2 not available")
-            
-        if CORPUS_SAVER_AVAILABLE:
-            print("[OK] Corpus saver available")
-        else:
-            print("[WARN] Corpus saver not available")
-        
         print("[START] BhashaBridge Full Backend Starting...")
         print("[URL] Backend URL: http://localhost:5000")
-        print("[MODE] Full Mode: Real translation and speech recognition")
-        print("[FEATURES] Google Translate, Speech Recognition, Dialect Search, AI Models")
-        print("[LANGUAGES] Supported Languages:", ', '.join(SUPPORTED_LANGUAGES.values()))
         
-        app.run(debug=True, host='0.0.0.0', port=5000)
+        # Disable debug mode for production
+        app.run(host='0.0.0.0', port=5000, debug=False)
         
     except Exception as e:
-        print(f"[ERROR] Failed to start BhashaBridge backend: {e}")
-        print("Please check your dependencies and configuration.")
-        exit(1)
+        print(f"[FATAL] Failed to start BhashaBridge backend: {e}")
+        sys.exit(1)

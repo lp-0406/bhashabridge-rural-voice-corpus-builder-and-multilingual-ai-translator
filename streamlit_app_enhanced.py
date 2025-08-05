@@ -247,7 +247,7 @@ st.markdown("""
     }
     
     /* Responsive design */
-    @media (max-width: 768px) {
+    @media (max-width: 500px) {
         .header-title {
             font-size: 2rem;
         }
@@ -315,10 +315,6 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Status indicator
-if backend_status:
-    st.markdown('<div class="status-badge status-online">🟢 Backend Connected - Full Features Available</div>', unsafe_allow_html=True)
-else:
-    st.markdown('<div class="status-badge status-offline">🔴 Demo Mode - Limited Features</div>', unsafe_allow_html=True)
 
 # Professional sidebar
 with st.sidebar:
@@ -555,8 +551,8 @@ with tab3:
     - **Deployment**: Hugging Face Spaces
     
     ### 📞 Support & Contact:
-    - **GitHub**: [BhashaBridge Repository](https://github.com/bhashabridge/bhashabridge)
-    - **Email**: support@bhashabridge.org
+    - **GitHub**: [BhashaBridge Repository](https://code.swecha.org/lp_0406/bhashabridge-rural-voice-corpus-builder-and-multilingual-ai-translator)
+    - **Email**: annalaraghava0@gmail.com
     - **Community**: Join our WhatsApp groups for support
     
     ### 🙏 Acknowledgments:
