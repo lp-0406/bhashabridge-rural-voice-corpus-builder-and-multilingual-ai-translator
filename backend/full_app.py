@@ -111,92 +111,186 @@ class DialectEntry(db.Model):
 
 # Translation functions
 def translate_text_real(text, source_lang, target_lang):
-    """Real translation using Google Translate API"""
+    """Real translation using improved Google Translate with better handling"""
     try:
         detected = None
         if source_lang == 'auto':
             # Detect language first
             detected = translator.detect(text)
             source_lang = detected.lang
+            print(f"[DETECT] Auto-detected language: {source_lang}")
         
         # Get proper language codes
         src_code = GOOGLE_LANG_CODES.get(source_lang, source_lang)
         tgt_code = GOOGLE_LANG_CODES.get(target_lang, target_lang)
         
-        # Perform translation
+        print(f"[TRANSLATE] Translating '{text[:50]}...' from {src_code} to {tgt_code}")
+        
+        # Perform translation with better error handling
         result = translator.translate(text, src=src_code, dest=tgt_code)
         
-        return {
-            'translated_text': result.text,
+        # Validate translation quality
+        translated_text = result.text
+        confidence = 0.9  # High confidence for Google Translate
+        
+        # Check if translation is reasonable
+        if len(translated_text) < 2 or translated_text == text:
+            confidence = 0.5
+        
+        translation_result = {
+            'translated_text': translated_text,
             'source_language': source_lang,
             'target_language': target_lang,
-            'confidence': result.extra_data.get('confidence', 0.8) if hasattr(result, 'extra_data') and result.extra_data else 0.8,
-            'detected_language': detected.lang if detected else source_lang
+            'confidence': confidence,
+            'detected_language': detected.lang if detected else source_lang,
+            'engine': 'Google Translate Enhanced'
         }
+        
+        print(f"[SUCCESS] Translation: '{translated_text[:50]}...' (confidence: {confidence})")
+        return translation_result
+        
     except Exception as e:
-        print(f"Translation error: {e}")
-        return None
+        print(f"[ERROR] Translation failed: {e}")
+        return {
+            'translated_text': f"[Translation Error: {text}]",
+            'source_language': source_lang,
+            'target_language': target_lang,
+            'confidence': 0.0,
+            'detected_language': source_lang,
+            'engine': 'Error',
+            'error': str(e)
+        }
 
 def speech_to_text_real(audio_data):
-    """Real speech recognition using Google Speech Recognition"""
+    """Real speech recognition using Whisper"""
     try:
-        if not audio_data:
-            raise ValueError("No audio data provided")
-            
+        # Try Whisper first
+        if WHISPER_AVAILABLE:
+            try:
+                # Convert audio data to temporary file for Whisper
+                import tempfile
+                
+                # Handle different audio data types
+                if isinstance(audio_data, bytes):
+                    # Base64 encoded audio
+                    try:
+                        audio_bytes = base64.b64decode(audio_data)
+                    except:
+                        audio_bytes = audio_data
+                else:
+                    audio_bytes = audio_data
+                
+                # Create temporary file for Whisper
+                with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_file:
+                    # Convert to audio format with pydub
+                    audio_io = io.BytesIO(audio_bytes)
+                    try:
+                        audio_segment = AudioSegment.from_file(audio_io)
+                    except Exception as e:
+                        print(f"Error loading audio for Whisper: {e}")
+                        audio_segment = AudioSegment.from_wav(audio_io)
+                    
+                    # Export as WAV for Whisper
+                    audio_segment.export(temp_file.name, format="wav")
+                    temp_audio_path = temp_file.name
+                
+                # Use Whisper for transcription
+                whisper_result = whisper_stt.transcribe_audio(temp_audio_path)
+                
+                # Clean up temporary file
+                import os
+                try:
+                    os.unlink(temp_audio_path)
+                except:
+                    pass
+                
+                result = {
+                    'transcribed_text': whisper_result['text'],
+                    'detected_language': whisper_result['language'],
+                    'confidence': whisper_result['confidence'],
+                    'duration': whisper_result.get('duration', 0),
+                    'engine': 'Whisper',
+                    'segments': whisper_result.get('segments', [])
+                }
+                
+                print(f"[WHISPER] Transcription successful: {whisper_result['text'][:100]}...")
+                return result
+                
+            except Exception as whisper_error:
+                print(f"[WARN] Whisper failed, trying Google Speech: {whisper_error}")
+        
+        # Fallback to Google Speech Recognition
+        print("[FALLBACK] Using Google Speech Recognition as fallback")
         recognizer = sr.Recognizer()
         
-        # Try to convert audio data to AudioSegment with fallback handling
-        try:
-            audio = AudioSegment.from_file(io.BytesIO(audio_data))
-        except Exception as audio_error:
-            print(f"Audio format error: {audio_error}")
-            # Try common audio formats
-            for fmt in ['wav', 'mp3', 'ogg', 'webm']:
-                try:
-                    audio = AudioSegment.from_file(io.BytesIO(audio_data), format=fmt)
-                    break
-                except:
-                    continue
-            else:
-                raise ValueError("Unsupported audio format")
-        
-        # Convert to WAV format for speech recognition
-        wav_data = io.BytesIO()
-        audio.export(wav_data, format="wav")
-        wav_data.seek(0)
-        
-        # Use Google Speech Recognition
-        with sr.AudioFile(wav_data) as source:
-            # Adjust for ambient noise
-            recognizer.adjust_for_ambient_noise(source, duration=0.5)
-            audio_recorded = recognizer.record(source)
-            
-            # Try recognition with multiple languages
+        # Handle different audio data types
+        if isinstance(audio_data, bytes):
+            # Base64 encoded audio
             try:
-                text = recognizer.recognize_google(audio_recorded, language='hi-IN')
-                detected_lang = 'hi'
-            except sr.UnknownValueError:
-                try:
-                    text = recognizer.recognize_google(audio_recorded, language='en-IN')
-                    detected_lang = 'en'
-                except sr.UnknownValueError:
-                    text = recognizer.recognize_google(audio_recorded)
-                    detected_lang = 'auto'
+                audio_bytes = base64.b64decode(audio_data)
+            except:
+                audio_bytes = audio_data
+        else:
+            audio_bytes = audio_data
+        
+        # Convert to audio format
+        audio_io = io.BytesIO(audio_bytes)
+        
+        # Load audio with pydub
+        try:
+            audio_segment = AudioSegment.from_file(audio_io)
+        except Exception as e:
+            print(f"Error loading audio: {e}")
+            # Try different format
+            audio_segment = AudioSegment.from_wav(audio_io)
+        
+        # Convert to wav format
+        wav_io = io.BytesIO()
+        audio_segment.export(wav_io, format="wav")
+        wav_io.seek(0)
+        
+        # Recognize speech
+        with sr.AudioFile(wav_io) as source:
+            audio = recognizer.record(source)
             
+        # Try to recognize with multiple languages
+        languages_to_try = ['hi-IN', 'en-IN', 'te-IN', 'ta-IN', 'kn-IN', 'mr-IN']
+        
+        for lang in languages_to_try:
+            try:
+                text = recognizer.recognize_google(audio, language=lang)
+                detected_lang = lang.split('-')[0]  # Extract language code
+                
+                return {
+                    'transcribed_text': text,
+                    'detected_language': detected_lang,
+                    'confidence': 0.7,  # Google doesn't provide confidence, lower than Whisper
+                    'language_tried': lang,
+                    'engine': 'Google Speech (Fallback)'
+                }
+            except sr.UnknownValueError:
+                continue
+            except sr.RequestError as e:
+                print(f"Speech recognition service error: {e}")
+                continue
+        
         return {
-            'transcribed_text': text,
-            'confidence': 0.9,
-            'detected_language': detected_lang
+            'transcribed_text': '',
+            'detected_language': 'unknown',
+            'confidence': 0.0,
+            'error': 'Could not understand audio',
+            'engine': 'Error'
         }
-    except sr.UnknownValueError:
-        print("Speech recognition could not understand audio")
-        return None
-    except sr.RequestError as e:
-        print(f"Speech recognition service error: {e}")
-        return None
+        
     except Exception as e:
-        print(f"Speech recognition error: {e}")
-        return None
+        print(f"[ERROR] All speech recognition methods failed: {e}")
+        return {
+            'transcribed_text': '',
+            'detected_language': 'unknown',
+            'confidence': 0.0,
+            'error': str(e),
+            'engine': 'Error'
+        }
 
 def get_dialect_translations(text, language):
     """Get dialect-specific translations"""

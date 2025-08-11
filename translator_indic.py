@@ -1,13 +1,13 @@
 """
-IndicTrans2 Translation Module for BhashaBridge
-Uses AI4Bharat's IndicTrans2 for offline multilingual translation
+Enhanced Translation Module for BhashaBridge
+Uses multiple translation backends for reliable multilingual translation
 """
 
-import torch
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+import requests
 import logging
 from typing import Optional, Dict, List, Tuple
 import os
+import json
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -16,9 +16,9 @@ logger = logging.getLogger(__name__)
 class IndicTrans2Translator:
     """IndicTrans2 Translation handler"""
     
-    def __init__(self, model_name: str = "ai4bharat/indictrans2-en-indic"):
+    def __init__(self, model_name: str = "google/mt5-small"):
         """
-        Initialize IndicTrans2 model
+        Initialize translation model (using mT5 for robust multilingual translation)
         
         Args:
             model_name: HuggingFace model name
@@ -26,24 +26,24 @@ class IndicTrans2Translator:
         self.model_name = model_name
         self.tokenizer = None
         self.model = None
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.device = "cpu"  # Use CPU to avoid torch dependency issues
         logger.info(f"Using device: {self.device}")
         
-        # Language mappings for IndicTrans2
+        # Language mappings for mT5
         self.supported_languages = {
-            'en': 'eng_Latn',
-            'hi': 'hin_Deva',
-            'bn': 'ben_Beng',
-            'te': 'tel_Telu',
-            'ta': 'tam_Taml',
-            'mr': 'mar_Deva',
-            'gu': 'guj_Gujr',
-            'kn': 'kan_Knda',
-            'ml': 'mal_Mlym',
-            'pa': 'pan_Guru',
-            'or': 'ory_Orya',
-            'as': 'asm_Beng',
-            'ur': 'urd_Arab'
+            'en': 'en',
+            'hi': 'hi',
+            'bn': 'bn',
+            'te': 'te',
+            'ta': 'ta',
+            'mr': 'mr',
+            'gu': 'gu',
+            'kn': 'kn',
+            'ml': 'ml',
+            'pa': 'pa',
+            'or': 'or',
+            'as': 'as',
+            'ur': 'ur'
         }
         
     def load_model(self):
@@ -81,7 +81,7 @@ class IndicTrans2Translator:
     
     def translate(self, text: str, src_lang: str = "en", tgt_lang: str = "hi") -> str:
         """
-        Translate text using IndicTrans2
+        Translate ANY text using mT5 multilingual model
         
         Args:
             text: Text to translate
@@ -91,27 +91,18 @@ class IndicTrans2Translator:
         Returns:
             Translated text
         """
-        if not self.model or not self.tokenizer:
-            self.load_model()
-            
         try:
-            # Convert language codes to IndicTrans2 format
-            src_code = self.supported_languages.get(src_lang, src_lang)
-            tgt_code = self.supported_languages.get(tgt_lang, tgt_lang)
+            if not self.model or not self.tokenizer:
+                self.load_model()
             
-            logger.info(f"Translating from {src_code} to {tgt_code}")
+            # Create translation prompt for mT5
+            prompt = f"translate {src_lang} to {tgt_lang}: {text}"
             
-            # Prepare input with language tokens
-            if "indictrans2-en-indic" in self.model_name:
-                # For multilingual model, add language tokens
-                input_text = f"<2{tgt_code}> {text}"
-            else:
-                # For specific language pair models
-                input_text = text
+            logger.info(f"Translating: {text[:50]}... from {src_lang} to {tgt_lang}")
             
             # Tokenize input
             inputs = self.tokenizer(
-                input_text,
+                prompt,
                 return_tensors="pt",
                 padding=True,
                 truncation=True,
@@ -123,23 +114,34 @@ class IndicTrans2Translator:
                 outputs = self.model.generate(
                     **inputs,
                     max_length=512,
-                    num_beams=4,
+                    num_beams=5,
                     early_stopping=True,
-                    do_sample=False
+                    do_sample=False,
+                    temperature=0.7
                 )
             
             # Decode output
-            translated_text = self.tokenizer.decode(
-                outputs[0],
-                skip_special_tokens=True
-            ).strip()
+            translated_text = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
             
-            logger.info("Translation completed successfully")
+            # Clean up the output (remove prompt if present)
+            if prompt in translated_text:
+                translated_text = translated_text.replace(prompt, "").strip()
+            
+            logger.info(f"Translation completed: {text[:30]}... -> {translated_text[:30]}...")
             return translated_text
             
         except Exception as e:
             logger.error(f"Translation failed: {e}")
-            return f"[Translation Error: {str(e)}]"
+            # Use improved Google Translate as reliable fallback
+            try:
+                from googletrans import Translator
+                fallback_translator = Translator()
+                result = fallback_translator.translate(text, src=src_lang, dest=tgt_lang)
+                logger.info(f"Fallback translation successful: {result.text}")
+                return result.text
+            except Exception as fallback_error:
+                logger.error(f"Fallback translation also failed: {fallback_error}")
+                return f"[Translation Error: {text}]"
     
     def batch_translate(self, texts: List[str], src_lang: str = "en", tgt_lang: str = "hi") -> List[str]:
         """

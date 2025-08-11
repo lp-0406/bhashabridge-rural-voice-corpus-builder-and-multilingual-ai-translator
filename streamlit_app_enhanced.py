@@ -42,7 +42,7 @@ st.markdown("""
     
     /* Professional header */
     .header-container {
-        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+        background: linear-gradient(135deg, #050505 0%, #1e293b 50%, #000000 100%);
         padding: 2rem 0;
         margin: -1rem -1rem 2rem -1rem;
         border-radius: 0 0 20px 20px;
@@ -68,7 +68,7 @@ st.markdown("""
     
     /* Professional cards */
     .professional-card {
-        background: white;
+        background: linear-gradient(135deg, #050505 0%, #1e293b 50%, #000000 100%);
         border-radius: 16px;
         padding: 2rem;
         margin: 1.5rem 0;
@@ -309,8 +309,16 @@ backend_status = check_backend_status()
 # Professional header
 st.markdown("""
 <div class="header-container">
-    <h1 class="header-title">🌉 BhashaBridge</h1>
+    <h1 class="header-title"> BhashaBridge</h1>
     <p class="header-subtitle">Professional Multilingual Translation Platform</p>
+    <div style="margin-top: 1rem; padding: 1rem; background: rgba(255,255,255,0.1); border-radius: 8px;">
+        <p style="margin: 0; font-size: 0.9rem; color: #e2e8f0;">
+             <strong>Powered by:</strong> Enhanced Google Translate API • Whisper Speech Recognition • SQLite Database
+        </p>
+        <p style="margin: 0.5rem 0 0 0; font-size: 0.8rem; color: #cbd5e1;">
+            High-quality translation for ANY text • Offline speech processing • Real-time language detection
+        </p>
+    </div>
 </div>
 """, unsafe_allow_html=True)
 

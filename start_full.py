@@ -194,6 +194,61 @@ def test_backend_features():
     except Exception as e:
         print(f"[WARN] Feature test error: {e}")
 
+def test_audio_recording():
+    """Test audio recording functionality"""
+    print("\n[TEST] Testing audio recording components...")
+    
+    try:
+        # Test PyAudio installation
+        import pyaudio
+        audio = pyaudio.PyAudio()
+        if audio.get_default_input_device_info():
+            print("[OK] PyAudio detected microphone")
+        else:
+            print("[ERROR] No microphone detected")
+        audio.terminate()
+        
+        # Test SpeechRecognition
+        import speech_recognition as sr
+        recognizer = sr.Recognizer()
+        try:
+            with sr.Microphone() as source:
+                print("[OK] Microphone initialized successfully")
+                # Test microphone levels
+                ambient_noise = recognizer.adjust_for_ambient_noise(source, duration=1)
+                print(f"[INFO] Ambient noise level: {ambient_noise if ambient_noise else 'Normal'}")
+        except Exception as e:
+            print(f"[ERROR] Microphone test failed: {e}")
+            
+        # Test audio file handling
+        import soundfile as sf
+        import os
+        
+        test_audio_path = os.path.join(os.getcwd(), "test_audio.wav")
+        try:
+            # Create a short test audio file
+            sample_rate = 44100
+            duration = 1  # seconds
+            samples = [0] * (sample_rate * duration)  # Silent audio
+            sf.write(test_audio_path, samples, sample_rate)
+            
+            # Try to read it back
+            data, samplerate = sf.read(test_audio_path)
+            print("[OK] Audio file read/write working")
+            
+            # Clean up test file
+            os.remove(test_audio_path)
+        except Exception as e:
+            print(f"[ERROR] Audio file handling test failed: {e}")
+            
+    except Exception as e:
+        print(f"[ERROR] Audio system test failed: {e}")
+        
+    print("\n[INFO] If recording isn't working, check:")
+    print("1. Microphone permissions are granted to VS Code/Python")
+    print("2. Correct microphone is selected in system settings")
+    print("3. Microphone isn't muted in system volume mixer")
+
 def main():
     """Main startup function"""
     print_banner()
@@ -225,6 +280,9 @@ def main():
     
     # Test backend features
     test_backend_features()
+    
+    # Test audio recording
+    test_audio_recording()
     
     # Open browser
     open_browser()
