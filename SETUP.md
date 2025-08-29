@@ -47,7 +47,7 @@
    python app.py
    
    # Terminal 2: Start the frontend
-   streamlit run streamlit_app.py
+   streamlit run streamlit_app_enhanced.py
    ```
 
 ### Access the Application
@@ -59,7 +59,7 @@
 
 ```
 BhashaBridge/
-├── streamlit_app.py          # Main Streamlit application
+├── streamlit_app_enhanced.py          # Enhanced Streamlit application
 ├── app.py                    # Hugging Face Spaces entry point
 ├── backend/
 │   ├── app.py               # Flask API server
@@ -126,7 +126,7 @@ python test_setup.py
 ```
 
 ### Adding New Languages
-1. Update `LANGUAGES` in `streamlit_app.py`
+1. Update `LANGUAGES` in `streamlit_app_enhanced.py`
 2. Add language codes in `backend/app.py`
 3. Update dialect dictionary if needed
 

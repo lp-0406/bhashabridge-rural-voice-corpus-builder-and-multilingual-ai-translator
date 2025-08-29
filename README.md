@@ -26,7 +26,7 @@ cd backend
 python full_app.py
 
 # Start frontend (in another terminal)
-streamlit run streamlit_app.py
+streamlit run streamlit_app_enhanced.py
 ```
 
 ## 🌐 **Application URLs**
@@ -72,7 +72,7 @@ BhashaBridge/
 │   ├── populate_dialects.py # Dialect database setup
 │   └── data/
 │       └── dialect_dictionary.json
-├── streamlit_app.py        # Frontend application
+├── streamlit_app_enhanced.py        # Enhanced frontend application
 ├── start_full.py           # 🚀 Main startup script
 ├── start_full.bat          # Windows startup script
 ├── requirements-full.txt    # Full dependencies

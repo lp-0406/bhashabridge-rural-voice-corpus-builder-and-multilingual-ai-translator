@@ -11,4 +11,4 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 # Import and run the main Streamlit app
 if __name__ == "__main__":
     # Import the main streamlit app
-    exec(open('streamlit_app.py').read())
+    exec(open('streamlit_app_enhanced.py').read())

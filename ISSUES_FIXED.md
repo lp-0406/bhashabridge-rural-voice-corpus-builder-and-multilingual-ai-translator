@@ -58,7 +58,7 @@ if __name__ == '__main__':
 + echo [3/3] Installing dependencies...
 + pip install -r requirements.txt
 + echo [4/4] Starting Streamlit Frontend...
-+ start "BhashaBridge Frontend" cmd /k "streamlit run streamlit_app.py"
++ start "BhashaBridge Frontend" cmd /k "streamlit run streamlit_app_enhanced.py"
 
 - echo Frontend: http://localhost:3000
 + echo Frontend: http://localhost:8501
@@ -82,7 +82,7 @@ if __name__ == '__main__':
 - No clear entry point for different deployment scenarios
 
 ### ✅ **Fix**: Clarified project structure
-- `streamlit_app.py` - Main Streamlit application
+- `streamlit_app_enhanced.py` - Enhanced Streamlit application
 - `backend/app.py` - Full Flask API with AI models
 - `backend/simple_app.py` - Simplified demo backend
 - `app.py` - Hugging Face Spaces entry point
@@ -152,7 +152,7 @@ Comprehensive guide covering:
    start.bat
    
    # Option B: Manual start
-   streamlit run streamlit_app.py
+   streamlit run streamlit_app_enhanced.py
    ```
 
 4. **Access the application**:

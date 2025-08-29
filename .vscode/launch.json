@@ -27,7 +27,7 @@
       "module": "streamlit",
       "args": [
         "run",
-        "${workspaceFolder}/streamlit_app.py"
+                        "${workspaceFolder}/streamlit_app_enhanced.py"
       ],
       "console": "integratedTerminal",
       "justMyCode": true

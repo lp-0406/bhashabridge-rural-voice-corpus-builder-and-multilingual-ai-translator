@@ -37,7 +37,7 @@ if [ $? -eq 0 ]; then
     echo ""
     echo "To start the application:"
     echo "1. Start backend: cd backend && python3 app.py"
-    echo "2. Start frontend: streamlit run streamlit_app.py"
+    echo "2. Start frontend: streamlit run streamlit_app_enhanced.py"
     echo ""
     echo "Or run both: ./start.sh"
 else
