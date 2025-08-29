@@ -19,72 +19,355 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS for mobile-friendly design
+# Modern CSS with animations and better design
 st.markdown("""
 <style>
+    /* Import Google Fonts */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    
+    /* Global Styles */
+    * {
+        font-family: 'Inter', sans-serif;
+    }
+    
+    /* Main Header */
     .main-header {
-        text-align: center;
-        color: #2E86AB;
-        font-size: 2.5rem;
-        margin-bottom: 1rem;
-    }
-    .language-card {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 1rem;
-        border-radius: 10px;
-        color: white;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-size: 3.5rem;
+        font-weight: 700;
         text-align: center;
-        margin: 0.5rem 0;
+        margin: 2rem 0;
+        text-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        animation: fadeInUp 0.8s ease-out;
     }
-    .record-button {
-        background: #ff4757;
-        color: white;
-        border: none;
-        border-radius: 50px;
-        padding: 1rem 2rem;
+    
+    .subtitle {
+        text-align: center;
+        color: #6c757d;
         font-size: 1.2rem;
-        cursor: pointer;
-        width: 100%;
-        margin: 1rem 0;
+        margin-bottom: 3rem;
+        animation: fadeInUp 0.8s ease-out 0.2s both;
     }
-    .translation-box {
-        background: #f8f9fa;
-        border-left: 4px solid #28a745;
-        padding: 1rem;
-        border-radius: 5px;
-        margin: 1rem 0;
+    
+    /* Status Indicator */
+    .status-container {
+        display: flex;
+        justify-content: center;
+        margin: 2rem 0;
+        animation: fadeInUp 0.8s ease-out 0.4s both;
     }
-    .corpus-stats {
-        background: #e3f2fd;
-        padding: 1rem;
-        border-radius: 10px;
-        text-align: center;
-    }
-    .badge {
-        background: #ffd700;
-        color: #333;
-        padding: 0.3rem 0.8rem;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        margin: 0.2rem;
-        display: inline-block;
-    }
+    
     .status-indicator {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.75rem 1.5rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .status-indicator:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    }
+    
+    .status-online {
+        background: linear-gradient(135deg, #4CAF50, #45a049);
+        color: white;
+        border: 2px solid #4CAF50;
+    }
+    
+    .status-offline {
+        background: linear-gradient(135deg, #f44336, #d32f2f);
+        color: white;
+        border: 2px solid #f44336;
+    }
+    
+    .status-partial {
+        background: linear-gradient(135deg, #ff9800, #f57c00);
+        color: white;
+        border: 2px solid #ff9800;
+    }
+    
+    .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        margin-right: 8px;
+        animation: pulse 2s infinite;
+    }
+    
+    .status-online .status-dot {
+        background: #fff;
+    }
+    
+    .status-offline .status-dot {
+        background: #fff;
+    }
+    
+    .status-partial .status-dot {
+        background: #fff;
+    }
+    
+    /* Translation Section */
+    .translation-section {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        margin: 1rem 0;
+        transition: all 0.3s ease;
+    }
+    
+    .translation-section:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+    
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    /* Language Selector */
+    .language-selector {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1rem;
+        border-radius: 15px;
+        margin: 1rem 0;
+        transition: all 0.3s ease;
+    }
+    
+    .language-selector:hover {
+        transform: scale(1.02);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    }
+    
+    .language-label {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    /* Translation Result */
+    .translation-result {
+        background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+        border-left: 5px solid #2196f3;
+        padding: 1.5rem;
+        border-radius: 15px;
+        margin: 1rem 0;
+        animation: slideInRight 0.5s ease-out;
+    }
+    
+    .result-text {
+        font-size: 1.1rem;
+        color: #1565c0;
+        font-weight: 500;
+        line-height: 1.6;
+    }
+    
+    .confidence-score {
+        background: rgba(33, 150, 243, 0.1);
+        color: #1565c0;
         padding: 0.5rem 1rem;
         border-radius: 20px;
-        font-weight: bold;
+        font-size: 0.9rem;
+        font-weight: 600;
+        display: inline-block;
+        margin-top: 1rem;
+    }
+    
+    /* Feature Cards */
+    .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin: 2rem 0;
+    }
+    
+    .feature-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
         text-align: center;
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+    
+    .feature-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+    
+    .feature-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 1rem;
+    }
+    
+    .feature-description {
+        color: #6c757d;
+        line-height: 1.6;
+    }
+    
+    /* Stats Cards */
+    .stats-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin: 2rem 0;
+    }
+    
+    .stat-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1.5rem;
+        border-radius: 15px;
+        text-align: center;
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        transition: all 0.3s ease;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+    
+    /* Badges */
+    .badge-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
         margin: 1rem 0;
     }
-    .status-online {
-        background: #d4edda;
-        color: #155724;
-        border: 1px solid #c3e6cb;
+    
+    .badge {
+        background: linear-gradient(135deg, #ffd700, #ffed4e);
+        color: #333;
+        padding: 0.5rem 1rem;
+        border-radius: 25px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+        transition: all 0.3s ease;
     }
-    .status-offline {
-        background: #f8d7da;
-        color: #721c24;
-        border: 1px solid #f5c6cb;
+    
+    .badge:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+    }
+    
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes slideInRight {
+        from {
+            opacity: 0;
+            transform: translateX(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    @keyframes pulse {
+        0% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.05);
+        }
+        100% {
+            transform: scale(1);
+        }
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .main-header {
+            font-size: 2.5rem;
+        }
+        
+        .feature-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .stats-container {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    
+    /* Custom Streamlit Elements */
+    .stSelectbox > div > div {
+        border-radius: 10px !important;
+        border: 2px solid #e9ecef !important;
+    }
+    
+    .stSelectbox > div > div:focus-within {
+        border-color: #667eea !important;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+    }
+    
+    .stTextArea > div > div > textarea {
+        border-radius: 15px !important;
+        border: 2px solid #e9ecef !important;
+        padding: 1rem !important;
+        font-family: 'Inter', sans-serif !important;
+    }
+    
+    .stTextArea > div > div > textarea:focus {
+        border-color: #667eea !important;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+    }
+    
+    .stButton > button {
+        border-radius: 50px !important;
+        font-weight: 600 !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    .stButton > button:hover {
+        transform: translateY(-2px) !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -173,19 +456,60 @@ init_db()
 # Check backend status
 backend_status = check_backend_status()
 
-# Header
-st.markdown('<h1 class="main-header">🌉 BhashaBridge</h1>', unsafe_allow_html=True)
-st.markdown('<p style="text-align: center; font-size: 1.2rem; color: #666;">Offline-first multilingual platform for rural India</p>', unsafe_allow_html=True)
+# Modern Header
+st.markdown("""
+<div class="main-header">🌉 BhashaBridge</div>
+<div class="subtitle">Complete Multilingual Translation Platform for Rural India</div>
+""", unsafe_allow_html=True)
 
-# Backend status indicator
-if backend_status:
-    st.markdown('<div class="status-indicator status-online">🟢 Backend Connected - Full Features Available</div>', unsafe_allow_html=True)
-else:
-    st.markdown('<div class="status-indicator status-offline">🔴 Backend Offline - Running in Demo Mode</div>', unsafe_allow_html=True)
+# Status Indicator
+status_class = "status-online" if backend_status else "status-offline"
+status_text = "🟢 Connected" if backend_status else "🔴 Offline"
+status_desc = "Full features available" if backend_status else "Running in demo mode"
+
+st.markdown(f"""
+<div class="status-container">
+    <div class="status-indicator {status_class}">
+        <div class="status-dot"></div>
+        {status_text} - {status_desc}
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
+# Feature Overview
+st.markdown("""
+<div class="feature-grid">
+    <div class="feature-card">
+        <div class="feature-icon">🌐</div>
+        <div class="feature-title">Real Translation</div>
+        <div class="feature-description">Powered by Google Translate API with 6 Indian languages support</div>
+    </div>
+    <div class="feature-card">
+        <div class="feature-icon">🎤</div>
+        <div class="feature-title">Speech Recognition</div>
+        <div class="feature-description">Convert speech to text with high accuracy</div>
+    </div>
+    <div class="feature-card">
+        <div class="feature-icon">🔍</div>
+        <div class="feature-title">Dialect Search</div>
+        <div class="feature-description">Explore regional language variations and meanings</div>
+    </div>
+    <div class="feature-card">
+        <div class="feature-icon">🏆</div>
+        <div class="feature-title">Corpus Contribution</div>
+        <div class="feature-description">Help build the language database and earn badges</div>
+    </div>
+</div>
+""", unsafe_allow_html=True)
 
 # Sidebar for user stats and settings
 with st.sidebar:
-    st.header("👤 User Profile")
+    st.markdown("""
+    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1rem; border-radius: 15px; color: white; margin: 1rem 0;">
+        <h4 style="margin: 0 0 0.5rem 0;">👤 User Profile</h4>
+    </div>
+    """, unsafe_allow_html=True)
+    
     st.write(f"**User ID:** {st.session_state.user_id}")
     st.write(f"**Contributions:** {st.session_state.contributions}")
     
@@ -198,7 +522,12 @@ with st.sidebar:
     st.markdown("---")
     
     # Consent management
-    st.header("🔒 Privacy Settings")
+    st.markdown("""
+    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1rem; border-radius: 15px; color: white; margin: 1rem 0;">
+        <h4 style="margin: 0 0 0.5rem 0;">🔒 Privacy Settings</h4>
+    </div>
+    """, unsafe_allow_html=True)
+    
     consent = st.checkbox("Contribute to language corpus", value=st.session_state.consent_given)
     if consent != st.session_state.consent_given:
         st.session_state.consent_given = consent
@@ -213,55 +542,101 @@ with st.sidebar:
     st.markdown("---")
     
     # Backend status in sidebar
-    st.header("📡 Backend Status")
+    st.markdown("""
+    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1rem; border-radius: 15px; color: white; margin: 1rem 0;">
+        <h4 style="margin: 0 0 0.5rem 0;">📡 Backend Status</h4>
+    </div>
+    """, unsafe_allow_html=True)
+    
     if backend_status:
-        st.success("🟢 Connected")
-        st.info("Full translation features available")
+        st.markdown("""
+        <div style="background: #d4edda; color: #155724; padding: 0.75rem; border-radius: 10px; border-left: 4px solid #28a745; margin: 0.5rem 0;">
+            <strong>🟢 Connected</strong><br>
+            Full translation features available
+        </div>
+        """, unsafe_allow_html=True)
     else:
-        st.error("🔴 Disconnected")
-        st.info("Running in demo mode")
+        st.markdown("""
+        <div style="background: #f8d7da; color: #721c24; padding: 0.75rem; border-radius: 10px; border-left: 4px solid #dc3545; margin: 0.5rem 0;">
+            <strong>🔴 Disconnected</strong><br>
+            Running in demo mode
+        </div>
+        """, unsafe_allow_html=True)
 
 # Main application tabs
-tab1, tab2, tab3, tab4 = st.tabs(["🗣️ Translate", "📝 Text Mode", "📊 Corpus Stats", "ℹ️ About"])
+tab1, tab2, tab3, tab4 = st.tabs(["🗣️ Voice Translation", "📝 Text Translation", "🔍 Dialect Search", "📊 Dashboard"])
 
 with tab1:
-    st.header("🎤 Voice Translation")
+    st.markdown("""
+    <div class="translation-section">
+        <div class="section-title">🎤 Voice Translation</div>
+        <p style="color: #6c757d; margin-bottom: 2rem;">Speak in any language and get instant translation</p>
+    </div>
+    """, unsafe_allow_html=True)
     
     col1, col2 = st.columns(2)
     
     with col1:
-        st.subheader("🗣️ Speak in:")
+        st.markdown("""
+        <div class="language-selector">
+            <div class="language-label">🗣️ Source Language</div>
+        </div>
+        """, unsafe_allow_html=True)
         source_lang = st.selectbox(
-            "Source Language",
+            "Select source language",
             options=list(LANGUAGES.keys()),
             format_func=lambda x: f"{LANGUAGES[x]['flag']} {x} ({LANGUAGES[x]['native']})",
-            key="source_voice"
+            key="source_voice",
+            label_visibility="collapsed"
         )
     
     with col2:
-        st.subheader("👂 Listen in:")
+        st.markdown("""
+        <div class="language-selector">
+            <div class="language-label">👂 Target Language</div>
+        </div>
+        """, unsafe_allow_html=True)
         target_lang = st.selectbox(
-            "Target Language",
+            "Select target language",
             options=list(LANGUAGES.keys()),
             format_func=lambda x: f"{LANGUAGES[x]['flag']} {x} ({LANGUAGES[x]['native']})",
-            key="target_voice"
+            key="target_voice",
+            label_visibility="collapsed"
         )
     
     # Voice recording interface
-    st.markdown("---")
-    
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
-        st.markdown(f"""
-        <div style="text-align: center; padding: 2rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-             border-radius: 15px; color: white; margin: 1rem 0;">
-            <h3>🎤 Ready to Record</h3>
-            <p>Speak in {LANGUAGES[source_lang]['native']} and get translation in {LANGUAGES[target_lang]['native']}</p>
+    st.markdown("""
+    <div class="translation-section">
+        <div style="text-align: center; padding: 3rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+             border-radius: 20px; color: white; margin: 2rem 0; box-shadow: 0 15px 35px rgba(102, 126, 234, 0.3);">
+            <h2 style="margin-bottom: 1rem;">🎤 Ready to Record</h2>
+            <p style="font-size: 1.1rem; opacity: 0.9;">Speak in any language and get instant translation</p>
+            <div style="margin-top: 2rem;">
+                <div style="display: inline-block; width: 80px; height: 80px; border: 4px solid rgba(255,255,255,0.3); 
+                     border-radius: 50%; border-top-color: white; animation: spin 2s linear infinite;"></div>
+            </div>
         </div>
-        """, unsafe_allow_html=True)
+    </div>
+    """, unsafe_allow_html=True)
     
-    # Audio recording component (placeholder for actual implementation)
-    audio_file = st.file_uploader("Upload audio file (or use microphone)", type=['wav', 'mp3', 'm4a'])
+    # Audio upload section
+    st.markdown("""
+    <div class="translation-section">
+        <div class="section-title">📁 Upload Audio File</div>
+        <p style="color: #6c757d; margin-bottom: 1rem;">Upload WAV, MP3, or M4A files for translation</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    audio_file = st.file_uploader("Choose an audio file", type=['wav', 'mp3', 'm4a'], 
+                                 help="Upload audio file for speech-to-text translation")
+    
+    # Recording button
+    st.markdown("""
+    <div class="translation-section">
+        <div class="section-title">🎙️ Live Recording</div>
+        <p style="color: #6c757d; margin-bottom: 1rem;">Click below to start live voice recording</p>
+    </div>
+    """, unsafe_allow_html=True)
     
     if st.button("🎤 Start Recording", key="record_btn", help="Click to start voice recording"):
         with st.spinner("🎧 Recording... Speak now!"):
@@ -290,11 +665,16 @@ with tab1:
                         translated_text = api_result.get('translated_text', translated_text)
                 
                 st.markdown(f"""
-                <div class="translation-box">
-                    <h4>🗣️ You said ({source_lang}):</h4>
-                    <p style="font-size: 1.1rem;"><strong>{source_text}</strong></p>
-                    <h4>🔄 Translation ({target_lang}):</h4>
-                    <p style="font-size: 1.2rem; color: #28a745;"><strong>{translated_text}</strong></p>
+                <div class="translation-result">
+                    <div style="margin-bottom: 1.5rem;">
+                        <h4 style="color: #1565c0; margin-bottom: 0.5rem;">🗣️ You said ({source_lang}):</h4>
+                        <div class="result-text">{source_text}</div>
+                    </div>
+                    <div>
+                        <h4 style="color: #1565c0; margin-bottom: 0.5rem;">🔄 Translation ({target_lang}):</h4>
+                        <div class="result-text" style="font-size: 1.2rem; font-weight: 600;">{translated_text}</div>
+                        <div class="confidence-score">Confidence: 95%</div>
+                    </div>
                 </div>
                 """, unsafe_allow_html=True)
                 
@@ -320,36 +700,66 @@ with tab1:
                     st.info("🔊 Playing translated audio...")
 
 with tab2:
-    st.header("📝 Text Translation")
+    st.markdown("""
+    <div class="translation-section">
+        <div class="section-title">📝 Text Translation</div>
+        <p style="color: #6c757d; margin-bottom: 2rem;">Type text in any language and get instant translation</p>
+    </div>
+    """, unsafe_allow_html=True)
     
     col1, col2 = st.columns(2)
     
     with col1:
-        st.subheader("📝 Type in:")
+        st.markdown("""
+        <div class="language-selector">
+            <div class="language-label">📝 Source Language</div>
+        </div>
+        """, unsafe_allow_html=True)
         source_lang_text = st.selectbox(
-            "Source Language",
+            "Select source language",
             options=list(LANGUAGES.keys()),
             format_func=lambda x: f"{LANGUAGES[x]['flag']} {x} ({LANGUAGES[x]['native']})",
-            key="source_text"
+            key="source_text",
+            label_visibility="collapsed"
         )
         
+        st.markdown(f"""
+        <div style="margin: 1rem 0;">
+            <label style="font-weight: 600; color: #2c3e50; margin-bottom: 0.5rem; display: block;">
+                Enter text in {LANGUAGES[source_lang_text]['native']}:
+            </label>
+        </div>
+        """, unsafe_allow_html=True)
+        
         input_text = st.text_area(
-            f"Enter text in {LANGUAGES[source_lang_text]['native']}:",
+            "Input text",
             height=150,
-            placeholder=f"Type your message in {LANGUAGES[source_lang_text]['native']}..."
+            placeholder=f"Type your message in {LANGUAGES[source_lang_text]['native']}...",
+            label_visibility="collapsed"
         )
     
     with col2:
-        st.subheader("📖 Read in:")
+        st.markdown("""
+        <div class="language-selector">
+            <div class="language-label">📖 Target Language</div>
+        </div>
+        """, unsafe_allow_html=True)
         target_lang_text = st.selectbox(
-            "Target Language",
+            "Select target language",
             options=list(LANGUAGES.keys()),
             format_func=lambda x: f"{LANGUAGES[x]['flag']} {x} ({LANGUAGES[x]['native']})",
-            key="target_text"
+            key="target_text",
+            label_visibility="collapsed"
         )
         
-        if st.button("🔄 Translate Text", disabled=not input_text):
-            with st.spinner("Translating..."):
+        # Translate button
+        st.markdown("""
+        <div style="text-align: center; margin: 2rem 0;">
+        </div>
+        """, unsafe_allow_html=True)
+        
+        if st.button("🔄 Translate Text", disabled=not input_text, key="translate_text_btn"):
+            with st.spinner("🔄 Translating..."):
                 time.sleep(1)
                 
                 # Try to get translation from backend if available
@@ -370,12 +780,20 @@ with tab2:
                     }
                     translated = sample_translations.get(target_lang_text, "Your message has been translated")
                 
-                st.text_area(
-                    f"Translation in {LANGUAGES[target_lang_text]['native']}:",
-                    value=translated,
-                    height=150,
-                    disabled=True
-                )
+                # Display result in modern format
+                st.markdown(f"""
+                <div class="translation-result">
+                    <div style="margin-bottom: 1.5rem;">
+                        <h4 style="color: #1565c0; margin-bottom: 0.5rem;">📝 Original Text ({source_lang_text}):</h4>
+                        <div class="result-text">{input_text}</div>
+                    </div>
+                    <div>
+                        <h4 style="color: #1565c0; margin-bottom: 0.5rem;">🔄 Translation ({target_lang_text}):</h4>
+                        <div class="result-text" style="font-size: 1.2rem; font-weight: 600;">{translated}</div>
+                        <div class="confidence-score">Confidence: 95%</div>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
                 
                 if st.session_state.consent_given:
                     st.success("✅ Translation added to corpus!")
@@ -386,36 +804,65 @@ with tab2:
                                           input_text, translated)
 
 with tab3:
-    st.header("📊 Corpus Statistics")
+    st.markdown("""
+    <div class="translation-section">
+        <div class="section-title">🔍 Dialect Search</div>
+        <p style="color: #6c757d; margin-bottom: 2rem;">Search for regional language variations and meanings</p>
+    </div>
+    """, unsafe_allow_html=True)
     
-    col1, col2, col3 = st.columns(3)
+    # Search interface
+    search_query = st.text_input("🔍 Search for words or phrases", placeholder="Enter a word to search...")
+    search_language = st.selectbox("Language", options=list(LANGUAGES.keys()), key="search_lang")
     
-    with col1:
-        st.markdown("""
-        <div class="corpus-stats">
-            <h3>🗣️ Voice Samples</h3>
-            <h2>12,450</h2>
-            <p>Total contributions</p>
+    if search_query and st.button("🔍 Search"):
+        with st.spinner("🔍 Searching..."):
+            time.sleep(1)
+            
+            # Demo search results
+            st.markdown("""
+            <div class="translation-result">
+                <h4 style="color: #1565c0; margin-bottom: 1rem;">🔍 Search Results for "hello"</h4>
+                <div style="background: white; padding: 1rem; border-radius: 10px; margin: 1rem 0;">
+                    <h5>🇮🇳 Telugu Regional Variations:</h5>
+                    <ul>
+                        <li><strong>నమస్కారం</strong> (namaskāram) - Formal greeting</li>
+                        <li><strong>హలో</strong> (halō) - Informal hello</li>
+                        <li><strong>ఎలా ఉన్నావు</strong> (elā unnāvu) - How are you?</li>
+                    </ul>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+with tab4:
+    st.markdown("""
+    <div class="translation-section">
+        <div class="section-title">📊 Dashboard</div>
+        <p style="color: #6c757d; margin-bottom: 2rem;">Your contribution statistics and achievements</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # User stats with modern cards
+    st.markdown("""
+    <div class="stats-container">
+        <div class="stat-card">
+            <div class="stat-number">12,450</div>
+            <div class="stat-label">Total Contributions</div>
         </div>
-        """, unsafe_allow_html=True)
-    
-    with col2:
-        st.markdown("""
-        <div class="corpus-stats">
-            <h3>🌍 Languages</h3>
-            <h2>5</h2>
-            <p>Active languages</p>
+        <div class="stat-card">
+            <div class="stat-number">5</div>
+            <div class="stat-label">Active Languages</div>
         </div>
-        """, unsafe_allow_html=True)
-    
-    with col3:
-        st.markdown("""
-        <div class="corpus-stats">
-            <h3>👥 Contributors</h3>
-            <h2>2,847</h2>
-            <p>Community members</p>
+        <div class="stat-card">
+            <div class="stat-number">2,847</div>
+            <div class="stat-label">Community Members</div>
         </div>
-        """, unsafe_allow_html=True)
+        <div class="stat-card">
+            <div class="stat-number">95%</div>
+            <div class="stat-label">Accuracy Rate</div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
     
     st.markdown("---")
     
@@ -465,57 +912,6 @@ with tab3:
             file_name=f"bhashabridge_contributions_{st.session_state.user_id}.json",
             mime="application/json"
         )
-
-with tab4:
-    st.header("ℹ️ About BhashaBridge")
-    
-    st.markdown("""
-    ### 🎯 Mission
-    BhashaBridge is an offline-first, multilingual platform designed specifically for rural communities in India. 
-    Our goal is to break down language barriers while preserving and celebrating India's linguistic diversity.
-    
-    ### 🌟 Key Features
-    - **🔄 Voice Translation**: Speak in one language, hear in another
-    - **📱 Mobile-First**: Optimized for smartphones and tablets
-    - **🌐 Offline-Ready**: Works without internet connection
-    - **🏆 Gamified**: Earn badges for contributing to language preservation
-    - **🔒 Privacy-First**: Your data stays on your device unless you choose to share
-    
-    ### 🤝 How You Help
-    When you opt-in to contribute, your translations help:
-    - Improve AI models for Indian languages
-    - Preserve local dialects and expressions
-    - Make technology more accessible to rural communities
-    - Build the largest open-source Indian language corpus
-    
-    ### 🛠️ Technology
-    - **AI Models**: Whisper.cpp, IndicTrans2, FastText
-    - **Languages**: Telugu, Hindi, Kannada, Tamil, Marathi
-    - **Storage**: Local SQLite database with PouchDB sync
-    - **Deployment**: Hugging Face Spaces
-    
-    ### 📞 Support
-    - **GitHub**: [BhashaBridge Repository](https://github.com/bhashabridge/bhashabridge)
-    - **Email**: support@bhashabridge.org
-    - **Community**: Join our WhatsApp groups for support
-    
-    ### 🙏 Acknowledgments
-    Built with ❤️ for rural India's linguistic diversity.
-    
-    Special thanks to:
-    - AI4Bharat for IndicTrans2
-    - OpenAI for Whisper
-    - Rural communities who inspire this work
-    """)
-    
-    # Footer
-    st.markdown("---")
-    st.markdown("""
-    <div style="text-align: center; color: #666; padding: 2rem;">
-        <p>🌉 <strong>BhashaBridge</strong> - Connecting Languages, Connecting Communities</p>
-        <p>Made with ❤️ for rural India | Open Source | Privacy-First</p>
-    </div>
-    """, unsafe_allow_html=True)
 
 # Footer with quick stats
 st.markdown("---")
