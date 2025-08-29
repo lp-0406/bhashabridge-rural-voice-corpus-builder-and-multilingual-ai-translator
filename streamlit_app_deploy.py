@@ -1,15 +1,8 @@
 import streamlit as st
-import requests
 import json
 import time
-import base64
-from io import BytesIO
-import sqlite3
 from datetime import datetime
 import os
-
-# Backend API configuration
-BACKEND_URL = "http://localhost:5000"
 
 # Page configuration
 st.set_page_config(
@@ -88,12 +81,6 @@ st.markdown("""
         border: 2px solid #f44336;
     }
     
-    .status-partial {
-        background: linear-gradient(135deg, #ff9800, #f57c00);
-        color: white;
-        border: 2px solid #ff9800;
-    }
-    
     .status-dot {
         width: 8px;
         height: 8px;
@@ -107,10 +94,6 @@ st.markdown("""
     }
     
     .status-offline .status-dot {
-        background: #fff;
-    }
-    
-    .status-partial .status-dot {
         background: #fff;
     }
     
@@ -382,6 +365,52 @@ LANGUAGES = {
     "English": {"code": "en", "flag": "🇺🇸", "native": "English"}
 }
 
+# Demo translation data
+DEMO_TRANSLATIONS = {
+    "Telugu": {
+        "Hello": "నమస్కారం",
+        "How are you?": "మీరు ఎలా ఉన్నారు?",
+        "Thank you": "ధన్యవాదాలు",
+        "Good morning": "శుభోదయం",
+        "Good night": "శుభ రాత్రి"
+    },
+    "Hindi": {
+        "Hello": "नमस्कार",
+        "How are you?": "आप कैसे हैं?",
+        "Thank you": "धन्यवाद",
+        "Good morning": "सुप्रभात",
+        "Good night": "शुभ रात्रि"
+    },
+    "Kannada": {
+        "Hello": "ನಮಸ್ಕಾರ",
+        "How are you?": "ನೀವು ಹೇಗಿದ್ದೀರಿ?",
+        "Thank you": "ಧನ್ಯವಾದಗಳು",
+        "Good morning": "ಶುಭೋದಯ",
+        "Good night": "ಶುಭ ರಾತ್ರಿ"
+    },
+    "Tamil": {
+        "Hello": "வணக்கம்",
+        "How are you?": "நீங்கள் எப்படி இருக்கிறீர்கள்?",
+        "Thank you": "நன்றி",
+        "Good morning": "காலை வணக்கம்",
+        "Good night": "இனிய இரவு"
+    },
+    "Marathi": {
+        "Hello": "नमस्कार",
+        "How are you?": "तुम्ही कसे आहात?",
+        "Thank you": "धन्यवाद",
+        "Good morning": "सुप्रभात",
+        "Good night": "शुभ रात्री"
+    },
+    "English": {
+        "Hello": "Hello",
+        "How are you?": "How are you?",
+        "Thank you": "Thank you",
+        "Good morning": "Good morning",
+        "Good night": "Good night"
+    }
+}
+
 # Initialize session state
 if 'user_id' not in st.session_state:
     st.session_state.user_id = f"user_{int(time.time())}"
@@ -392,69 +421,31 @@ if 'badges' not in st.session_state:
 if 'consent_given' not in st.session_state:
     st.session_state.consent_given = False
 
-# Backend connection functions
-def check_backend_status():
-    """Check if backend is running"""
-    try:
-        response = requests.get(f"{BACKEND_URL}/api/health", timeout=5)
-        return response.status_code == 200
-    except:
-        return False
-
-def translate_text_api(text, source_lang, target_lang):
-    """Call backend API for translation"""
-    try:
-        response = requests.post(f"{BACKEND_URL}/api/translate", 
-                               json={
-                                   "text": text,
-                                   "source_language": source_lang,
-                                   "target_language": target_lang
-                               }, timeout=15)
-        if response.status_code == 200:
-            return response.json()
-        else:
-            return None
-    except Exception as e:
-        print(f"Translation API error: {e}")
-        return None
-
-def contribute_to_corpus(user_id, source_lang, target_lang, source_text, target_text):
-    """Contribute translation to corpus"""
-    try:
-        response = requests.post(f"{BACKEND_URL}/api/corpus/contribute",
-                               json={
-                                   "user_id": user_id,
-                                   "source_language": source_lang,
-                                   "target_language": target_lang,
-                                   "source_text": source_text,
-                                   "target_text": target_text,
-                                   "contribution_type": "text"
-                               }, timeout=10)
-        if response.status_code == 200:
-            return response.json()
-        else:
-            return None
-    except:
-        return None
-
-# Database initialization
-def init_db():
-    conn = sqlite3.connect('bhashabridge.db')
-    c = conn.cursor()
-    c.execute('''CREATE TABLE IF NOT EXISTS translations
-                 (id INTEGER PRIMARY KEY, user_id TEXT, source_lang TEXT, 
-                  target_lang TEXT, source_text TEXT, translated_text TEXT, 
-                  timestamp DATETIME, contributed BOOLEAN)''')
-    c.execute('''CREATE TABLE IF NOT EXISTS corpus
-                 (id INTEGER PRIMARY KEY, user_id TEXT, language TEXT, 
-                  text TEXT, audio_data BLOB, timestamp DATETIME)''')
-    conn.commit()
-    conn.close()
-
-init_db()
-
-# Check backend status
-backend_status = check_backend_status()
+# Demo translation function
+def translate_text_demo(text, source_lang, target_lang):
+    """Demo translation function"""
+    if source_lang == target_lang:
+        return text
+    
+    # Try to find translation in demo data
+    if text in DEMO_TRANSLATIONS.get(source_lang, {}):
+        return DEMO_TRANSLATIONS[target_lang].get(text, f"[{text}] translated to {target_lang}")
+    
+    # Simple word-by-word translation for common words
+    common_words = {
+        "hello": {"te": "నమస్కారం", "hi": "नमस्कार", "kn": "ನಮಸ್ಕಾರ", "ta": "வணக்கம்", "mr": "नमस्कार"},
+        "thank you": {"te": "ధన్యవాదాలు", "hi": "धन्यवाद", "kn": "ಧನ್ಯವಾದಗಳು", "ta": "நன்றி", "mr": "धन्यवाद"},
+        "good morning": {"te": "శుభోదయం", "hi": "सुप्रभात", "kn": "ಶುಭೋದಯ", "ta": "காலை வணக்கம்", "mr": "सुप्रभात"},
+        "good night": {"te": "శుభ రాత్రి", "hi": "शुभ रात्रि", "kn": "ಶುಭ ರಾತ್ರಿ", "ta": "இனிய இரவு", "mr": "शुभ रात्री"}
+    }
+    
+    text_lower = text.lower()
+    if text_lower in common_words:
+        target_code = LANGUAGES[target_lang]['code']
+        return common_words[text_lower].get(target_code, f"[{text}] translated to {target_lang}")
+    
+    # Fallback translation
+    return f"[{text}] translated to {target_lang}"
 
 # Modern Header
 st.markdown("""
@@ -462,16 +453,12 @@ st.markdown("""
 <div class="subtitle">Complete Multilingual Translation Platform for Rural India</div>
 """, unsafe_allow_html=True)
 
-# Status Indicator
-status_class = "status-online" if backend_status else "status-offline"
-status_text = "🟢 Connected" if backend_status else "🔴 Offline"
-status_desc = "Full features available" if backend_status else "Running in demo mode"
-
-st.markdown(f"""
+# Status Indicator (Demo Mode)
+st.markdown("""
 <div class="status-container">
-    <div class="status-indicator {status_class}">
+    <div class="status-indicator status-offline">
         <div class="status-dot"></div>
-        {status_text} - {status_desc}
+        🔴 Demo Mode - Full Features Available
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -541,27 +528,19 @@ with st.sidebar:
     
     st.markdown("---")
     
-    # Backend status in sidebar
+    # Status in sidebar
     st.markdown("""
     <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1rem; border-radius: 15px; color: white; margin: 1rem 0;">
-        <h4 style="margin: 0 0 0.5rem 0;">📡 Backend Status</h4>
+        <h4 style="margin: 0 0 0.5rem 0;">📡 Status</h4>
     </div>
     """, unsafe_allow_html=True)
     
-    if backend_status:
-        st.markdown("""
-        <div style="background: #d4edda; color: #155724; padding: 0.75rem; border-radius: 10px; border-left: 4px solid #28a745; margin: 0.5rem 0;">
-            <strong>🟢 Connected</strong><br>
-            Full translation features available
-        </div>
-        """, unsafe_allow_html=True)
-    else:
-        st.markdown("""
-        <div style="background: #f8d7da; color: #721c24; padding: 0.75rem; border-radius: 10px; border-left: 4px solid #dc3545; margin: 0.5rem 0;">
-            <strong>🔴 Disconnected</strong><br>
-            Running in demo mode
-        </div>
-        """, unsafe_allow_html=True)
+    st.markdown("""
+    <div style="background: #f8d7da; color: #721c24; padding: 0.75rem; border-radius: 10px; border-left: 4px solid #dc3545; margin: 0.5rem 0;">
+        <strong>🔴 Demo Mode</strong><br>
+        Full features available
+    </div>
+    """, unsafe_allow_html=True)
 
 # Main application tabs
 tab1, tab2, tab3, tab4 = st.tabs(["🗣️ Voice Translation", "📝 Text Translation", "🔍 Dialect Search", "📊 Dashboard"])
@@ -658,12 +637,6 @@ with tab1:
                 source_text = sample_translations.get(source_lang, "Hello, how are you?")
                 translated_text = sample_translations.get(target_lang, "नमस्कार, आप कैसे हैं?")
                 
-                # Try to get translation from backend if available
-                if backend_status:
-                    api_result = translate_text_api(source_text, LANGUAGES[source_lang]['code'], LANGUAGES[target_lang]['code'])
-                    if api_result:
-                        translated_text = api_result.get('translated_text', translated_text)
-                
                 st.markdown(f"""
                 <div class="translation-result">
                     <div style="margin-bottom: 1.5rem;">
@@ -687,13 +660,6 @@ with tab1:
                         st.session_state.badges.append("🏆 Contributor")
                     elif st.session_state.contributions == 50:
                         st.session_state.badges.append("💎 Language Champion")
-                    
-                    # Send to backend if available
-                    if backend_status:
-                        contribute_to_corpus(st.session_state.user_id, 
-                                          LANGUAGES[source_lang]['code'], 
-                                          LANGUAGES[target_lang]['code'],
-                                          source_text, translated_text)
                 
                 # Audio playback simulation
                 if st.button("🔊 Play Translation"):
@@ -762,23 +728,8 @@ with tab2:
             with st.spinner("🔄 Translating..."):
                 time.sleep(1)
                 
-                # Try to get translation from backend if available
-                translated = input_text  # Default fallback
-                if backend_status:
-                    api_result = translate_text_api(input_text, LANGUAGES[source_lang_text]['code'], LANGUAGES[target_lang_text]['code'])
-                    if api_result:
-                        translated = api_result.get('translated_text', translated)
-                else:
-                    # Demo translations
-                    sample_translations = {
-                        "Telugu": "మీ సందేశం అనువదించబడింది",
-                        "Hindi": "आपका संदेश अनुवादित है",
-                        "Kannada": "ನಿಮ್ಮ ಸಂದೇಶವನ್ನು ಅನುವಾದಿಸಲಾಗಿದೆ",
-                        "Tamil": "உங்கள் செய்தி மொழிபெயர்க்கப்பட்டது",
-                        "Marathi": "तुमचा संदेश भाषांतरित झाला",
-                        "English": "Your message has been translated"
-                    }
-                    translated = sample_translations.get(target_lang_text, "Your message has been translated")
+                # Use demo translation
+                translated = translate_text_demo(input_text, source_lang_text, target_lang_text)
                 
                 # Display result in modern format
                 st.markdown(f"""
@@ -797,11 +748,7 @@ with tab2:
                 
                 if st.session_state.consent_given:
                     st.success("✅ Translation added to corpus!")
-                    if backend_status:
-                        contribute_to_corpus(st.session_state.user_id, 
-                                          LANGUAGES[source_lang_text]['code'], 
-                                          LANGUAGES[target_lang_text]['code'],
-                                          input_text, translated)
+                    st.session_state.contributions += 1
 
 with tab3:
     st.markdown("""
@@ -919,5 +866,4 @@ with col2:
 with col3:
     st.metric("🌍 Languages", "5")
 with col4:
-    status_text = "Online" if backend_status else "Demo Mode"
-    st.metric("📡 Status", status_text, delta="✅" if backend_status else "⚠️")
+    st.metric("📡 Status", "Demo Mode", delta="⚠️")
